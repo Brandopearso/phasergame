@@ -9,6 +9,7 @@
             margin: 0;
         }
     </style>
+		<script src="battle.js"></script>
 </head>
 <body>
 
@@ -24,17 +25,22 @@ function preload() {
     game.load.image('sky', 'assets/sky.png');
     game.load.image('ground', 'assets/platform.png');
     game.load.image('star', 'assets/star.png');
+		game.load.image('teleporter', 'assets/teleporter.png');
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+
+		game.state.add("battle", battle);
 
 }
 
 var player;
 var platforms;
 var cursors;
+var teleporters;
 
 var stars;
 var score = 0;
 var scoreText;
+
 
 function create() {
 
@@ -87,6 +93,13 @@ function create() {
     //  Finally some stars to collect
     stars = game.add.group();
 
+		teleporters = game.add.group();
+		teleporters.enableBody = true;
+
+		var teleporter = teleporters.create(game.world.width - 64, game.world.height - 96, 'teleporter')
+		teleporter.body.immovable = true;
+
+
     //  We will enable physics for any star that is created in this group
     stars.enableBody = true;
 
@@ -110,7 +123,6 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
 
 
-
 }
 
 function update() {
@@ -121,6 +133,8 @@ function update() {
 
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     game.physics.arcade.overlap(player, stars, collectStar, null, this);
+
+		game.physics.arcade.overlap(player, teleporters, moveScene, null, this)
 
     //  Reset the players velocity (movement)
     player.body.velocity.x = 0;
@@ -153,6 +167,11 @@ function update() {
         player.body.velocity.y = -350;
     }
 
+}
+
+function moveScene () {
+
+		game.state.start('battle')
 }
 
 function collectStar (player, star) {
